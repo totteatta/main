@@ -6,9 +6,10 @@
     <title>Device Spec</title>
     <style>
         body {
-            background-color: #000000; /* 背景：黒 */
-            color: #ffffff; /* 文字：白 */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            /* ここを !important で強制的にゴシック系にします */
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -18,10 +19,10 @@
         }
 
         .container {
-            background-color: #111; /* カード背景：少し明るい黒 */
+            background-color: #111;
             padding: 40px;
             border-radius: 16px;
-            border: 1px solid #333; /* 境界：グレー */
+            border: 1px solid #333;
             width: 380px;
             box-sizing: border-box;
             text-align: left;
@@ -29,32 +30,15 @@
 
         h1 {
             font-size: 18px;
-            font-weight: 400;
+            font-weight: 700; /* 太くして教科書体感を消す */
             letter-spacing: 2px;
             margin: 0 0 30px 0;
             text-align: center;
-            color: #ffffff;
         }
 
-        .info-box {
-            background-color: #000;
-            border: 1px solid #222;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            min-height: 120px;
-        }
-
-        .info-label {
-            font-size: 10px;
-            color: #666; /* ラベル：薄いグレー */
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
+        /* 数字や英字は等幅フォントを強制 */
         .info-value {
-            font-family: "SF Mono", "Fira Code", monospace;
+            font-family: "SF Mono", "Fira Code", "Courier New", monospace !important;
             font-size: 13px;
             line-height: 1.6;
             word-break: break-all;
@@ -65,54 +49,30 @@
             width: 100%;
             padding: 14px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             border: none;
             border-radius: 8px;
-            background-color: #ffffff; /* ボタン：白 */
-            color: #000000; /* ボタン文字：黒 */
+            background-color: #ffffff;
+            color: #000000;
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
+            font-family: inherit; /* bodyの!importantを引き継ぐ */
         }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        /* 以前のコードにあった不要なサイドバー関連は整理 */
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>DEVICE_SPEC</h1>
-        
-        <div class="info-box">
-            <div class="info-label">Current Data</div>
-            <div id="device-details" class="info-value">
-                Please initialize...
-            </div>
-        </div>
-
+        <div id="device-details" class="info-value">Please initialize...</div>
         <button onclick="getDeviceInfo()">GET DATA</button>
     </div>
-
     <script>
         function getDeviceInfo() {
             const details = document.getElementById('device-details');
-            
-            // データ取得
             const data = [
                 { label: "UA", val: navigator.userAgent },
                 { label: "PLATFORM", val: navigator.platform },
-                { label: "LANG", val: navigator.language },
-                { label: "SCREEN", val: `${window.screen.width} x ${window.screen.height}` }
+                { label: "LANG", val: navigator.language }
             ];
-
-            // 表示の書き換え
             details.innerHTML = data.map(item => `
                 <div style="margin-bottom: 10px;">
                     <span style="color: #666; font-size: 9px; display: block;">${item.label}</span>
