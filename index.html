@@ -29,27 +29,24 @@
             transition: all 0.2s ease-in-out;
         }
 
+        /* メインコンテンツの幅制限 */
+        .container {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .wrapper {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             width: 100%;
-            max-width: 700px;
         }
 
-        .column {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .column-title {
-            font-size: 12px;
-            color: #888;
-            text-align: center;
-            margin-bottom: 5px;
-            letter-spacing: 2px;
-        }
+        .column { display: flex; flex-direction: column; gap: 12px; }
+        .column-title { font-size: 12px; color: #888; text-align: center; margin-bottom: 5px; letter-spacing: 2px; }
 
         .file-item {
             background-color: #333;
@@ -60,7 +57,7 @@
             font-weight: bold;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            opacity: 0; /* 最初は透明 */
+            opacity: 0;
             transform: translateY(20px);
             transition: all 0.2s ease-in-out;
             font-size: 14px;
@@ -68,91 +65,89 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             border: none;
-            display: block; /* 確実に見えるように */
         }
 
-        /* クラスがついたら表示 */
-        .visible {
-            opacity: 1 !important;
-            transform: translateY(0) !important;
+        .visible { opacity: 1 !important; transform: translateY(0) !important; }
+
+        /* ニュースセクション（中央・一番下） */
+        #news-section {
+            background-color: #2a2a2a;
+            text-align: left;
+            padding: 20px;
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @media (hover: hover) {
-            .file-item:hover {
-                transform: scale(1.05);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
-                background-color: #3d3d3d;
-            }
+            .file-item:hover { transform: scale(1.05); background-color: #3d3d3d; }
         }
 
-        .file-item:active {
-            transform: scale(0.98);
-        }
-
-        @media (max-width: 500px) {
-            .wrapper { grid-template-columns: 1fr; }
-        }
-
-        #dynamic-files {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        @media (max-width: 500px) { .wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <h1 id="title">totteatta</h1>
 
-    <div class="wrapper">
-        <div class="column" id="links-column">
-            <div class="column-title">LINKS</div>
-            <a href="https://scratch.mit.edu/users/oira-edu/" class="file-item external">Scratch</a>
-            <a href="https://www.xbox.com/ja-JP/play/user/oiraedu" class="file-item external">Xbox</a>
-            <a href="https://www.youtube.com/@tttttoooyr" class="file-item external">YouTube</a>
-            <a href="https://www.instagram.com/yyuuuuttta/" class="file-item external">Instagram</a>
-            <a href="https://x.com/accounts1218" class="file-item external">X</a>
-            <a href="http://googleusercontent.com/spotify.com/3" class="file-item external">Spotify</a>
-            <a href="https://www.strava.com/athletes/195434973" class="file-item external">Strava</a>
-            <a href="https://ja.wikipedia.org/wiki/%E5%88%A9%E7%94%A8%E8%80%85:%E3%81%88%E3%81%BA%E3%81%8A%E3%82%93%E3%81%98%E3%82%87%E3%81%84" class="file-item external">Wikipedia</a>
-            <a href="https://www.duolingo.com/profile/oodde" class="file-item external">Duolingo</a>
-            <a href="https://codepen.io/codepen-oira-edu" class="file-item external">CodePen</a>
-            <a href="https://www.twitch.tv/totteatta" class="file-item external">Twitch</a>
-            <a href="https://www.roblox.com/ja/users/5447700511/profile" class="file-item external">Roblox</a>
+    <div class="container">
+        <div class="wrapper">
+            <div class="column">
+                <div class="column-title">LINKS</div>
+                <a href="https://scratch.mit.edu/users/oira-edu/" class="file-item external">Scratch</a>
+                <a href="https://www.xbox.com/ja-JP/play/user/oiraedu" class="file-item external">Xbox</a>
+                <a href="https://www.youtube.com/@tttttoooyr" class="file-item external">YouTube</a>
+                <a href="https://www.instagram.com/yyuuuuttta/" class="file-item external">Instagram</a>
+                <a href="https://x.com/accounts1218" class="file-item external">X</a>
+                <a href="https://www.strava.com/athletes/195434973" class="file-item external">Strava</a>
+                <a href="https://www.duolingo.com/profile/oodde" class="file-item external">Duolingo</a>
+                <a href="https://www.twitch.tv/totteatta" class="file-item external">Twitch</a>
+                <a href="https://www.roblox.com/ja/users/5447700511/profile" class="file-item external">Roblox</a>
+            </div>
+
+            <div class="column">
+                <div class="column-title">GITHUB</div>
+                <a href="https://github.com/totteatta" id="fixed-github" class="file-item">Github</a>
+                <div id="dynamic-files" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            </div>
         </div>
 
-        <div class="column" id="github-column">
-            <div class="column-title">GITHUB</div>
-            <a href="https://github.com/totteatta" id="fixed-github" class="file-item">Github</a>
-            <div id="dynamic-files"></div>
+        <div id="news-section">
+            <div style="font-size: 10px; color: #888; margin-bottom: 12px; letter-spacing: 1px; text-align: center;">WORLD NEWS</div>
+            <div id="news-list" style="font-size: 14px; line-height: 1.6;">読み込み中...</div>
         </div>
     </div>
 
     <script>
+        // ページ読み込み時に即実行
+        window.onload = () => {
+            // タイトル表示
+            setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 50);
+            
+            // 固定ボタン表示
+            setTimeout(() => { document.getElementById('fixed-github').classList.add('visible'); }, 100);
+            
+            // 左側ボタン表示
+            document.querySelectorAll('.external').forEach((el, i) => {
+                setTimeout(() => { el.classList.add('visible'); }, 150 + (i * 30));
+            });
+
+            loadFiles(); 
+            loadNews();
+        };
+
         async function loadFiles() {
             const user = "totteatta";
             const repo = "main";
             const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
-
-            // 1. タイトルと固定ボタンを即座に表示対象にする
-            setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 50);
-            setTimeout(() => { document.getElementById('fixed-github').classList.add('visible'); }, 100);
-
-            // 2. 左側のLINKSを表示
-            const externals = document.querySelectorAll('.external');
-            externals.forEach((link, i) => {
-                setTimeout(() => { link.classList.add('visible'); }, 150 + (i * 30));
-            });
+            const container = document.getElementById('dynamic-files');
 
             try {
                 const response = await fetch(url);
                 const files = await response.json();
-                const dynamicFilesContainer = document.getElementById('dynamic-files');
-                
-                // 重複防止：中身をリセット
-                dynamicFilesContainer.innerHTML = "";
-
-                // HTMLファイルを取得
                 const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
                 
                 htmlFiles.forEach((file, index) => {
@@ -160,20 +155,35 @@
                     a.href = `https://totteatta.github.io/main/${file.name}`;
                     a.className = 'file-item';
                     a.innerText = file.name.replace('.html', '');
-                    dynamicFilesContainer.appendChild(a);
-
-                    // 3. 自動取得ファイルを順に表示
-                    setTimeout(() => {
-                        a.classList.add('visible');
-                    }, 250 + (index * 50)); 
+                    container.appendChild(a);
+                    setTimeout(() => { a.classList.add('visible'); }, 200 + (index * 50)); 
                 });
-            } catch (e) {
-                console.error("Load Error:", e);
-            }
+            } catch (e) { console.error("Load Error"); }
         }
 
-        // 実行
-        loadFiles();
+        async function loadNews() {
+            const list = document.getElementById('news-list');
+            const section = document.getElementById('news-section');
+            const RSS_URL = "https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja";
+            const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    list.innerHTML = "";
+                    data.items.slice(0, 5).forEach(item => {
+                        const a = document.createElement('a');
+                        a.href = item.link; a.target = "_blank";
+                        a.style = "display:block; color:#ddd; text-decoration:none; margin-bottom:12px; border-bottom:1px solid #444; padding-bottom:8px;";
+                        a.innerText = "・ " + item.title;
+                        list.appendChild(a);
+                    });
+                    // ニュースをふわっと表示
+                    setTimeout(() => { section.classList.add('visible'); }, 500);
+                }
+            } catch (e) { list.innerText = "ニュース取得失敗"; }
+        }
     </script>
 </body>
 </html>
