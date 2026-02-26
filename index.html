@@ -22,16 +22,15 @@
             margin-bottom: 30px;
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.3s ease-in-out;
+            transition: all 0.2s ease-in-out; /* 0.2sに変更 */
         }
 
-        /* 左右に分けるコンテナ */
         .wrapper {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 左右均等 */
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
             width: 100%;
-            max-width: 700px; /* 2列にするため少し広げました */
+            max-width: 700px;
         }
 
         .column {
@@ -49,7 +48,7 @@
         }
 
         .file-item {
-            background-color: #333; /* 全ボタン共通 #333 */
+            background-color: #333;
             color: white;
             padding: 16px 10px;
             border-radius: 8px;
@@ -59,11 +58,13 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.3s ease-in-out;
+            /* 全体の動きを0.2sに統一 */
+            transition: all 0.2s ease-in-out;
             font-size: 14px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            border: none; /* 枠線を完全に削除 */
         }
 
         .visible {
@@ -83,7 +84,6 @@
             transform: scale(0.98);
         }
 
-        /* スマホ等で画面が狭い場合は1列にする */
         @media (max-width: 500px) {
             .wrapper { grid-template-columns: 1fr; }
         }
@@ -94,7 +94,7 @@
     <h1 id="title">totteatta</h1>
 
     <div class="wrapper">
-        <div class="column">
+        <div class="column" id="links-column">
             <div class="column-title">LINKS</div>
             <a href="https://scratch.mit.edu/users/oira-edu/" class="file-item external">Scratch</a>
             <a href="https://www.xbox.com/ja-JP/play/user/oiraedu" class="file-item external">Xbox</a>
@@ -112,8 +112,8 @@
 
         <div class="column" id="github-column">
             <div class="column-title">GITHUB</div>
-            <a href="https://github.com/totteatta" class="file-item external" solid #555;">My GitHub</a>
-            </div>
+            <a href="https://github.com/totteatta" class="file-item github-static">My GitHub</a>
+        </div>
     </div>
 
     <script>
@@ -123,18 +123,22 @@
             const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
             // 1. タイトル表示
-            setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 100);
+            setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 50);
 
-            // 2. 左側の固定リンクを順次表示
+            // 2. 左側のリンクを表示
             const externals = document.querySelectorAll('.external');
             externals.forEach((link, i) => {
-                setTimeout(() => { link.classList.add('visible'); }, 200 + (i * 40));
+                setTimeout(() => { link.classList.add('visible'); }, 150 + (i * 30));
             });
 
             try {
                 const response = await fetch(url);
                 const files = await response.json();
                 const githubColumn = document.getElementById('github-column');
+                const githubStatic = document.querySelector('.github-static');
+
+                // 3. GitHubスタティックボタンの表示（左側がある程度出たタイミングで）
+                setTimeout(() => { githubStatic.classList.add('visible'); }, 200);
 
                 // HTMLファイルを取得
                 const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
@@ -146,10 +150,10 @@
                     a.innerText = file.name.replace('.html', '');
                     githubColumn.appendChild(a);
 
-                    // 3. 右側の自動取得リンクを順次表示
+                    // 4. 右側の取得ファイルを順次表示
                     setTimeout(() => {
                         a.classList.add('visible');
-                    }, 400 + (index * 60)); 
+                    }, 300 + (index * 50)); 
                 });
             } catch (e) {
                 console.error("Load Error");
@@ -159,5 +163,4 @@
         loadFiles();
     </script>
 </body>
-
 </html>
