@@ -130,7 +130,7 @@
 
                 document.getElementById('total').innerText = total.toLocaleString() + " pt";
                 document.getElementById('profit').innerText = (profit >= 0 ? "+" : "") + profit.toLocaleString() + " pt";
-                document.getElementById('percent').innerText = (profit >= 0 ? "↑ " : "↓ ") + percent + " %";
+                document.getElementById('percent').innerText = (profit >= 0 ? "▲ " : "▼ ") + percent + " %";
                 document.getElementById('market-price').innerText = price.toFixed(2);
                 document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
             } catch (e) {
@@ -144,3 +144,4 @@
     </script>
 </body>
 </html>
+
