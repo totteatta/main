@@ -3,92 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>First Person 3D Game with Collision and Jumping on Objects</title>
+  <title>Minimal 3D Box</title>
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; background-color: #000; }
     canvas { display: block; }
   </style>
 </head>
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-    // シーン、カメラ、レンダラーの設定
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000); // 背景：黒
+
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 立方体、球体、円柱、円錐、トーラスの作成
-    const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);  // 立方体
-    const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);  // 球体 (直径2)
-    const cylinderGeometry = new THREE.CylinderGeometry(1, 1, 2, 32);  // 円柱 (高さ2)
-    const coneGeometry = new THREE.ConeGeometry(1, 2, 32);  // 円錐 (高さ2)
-    const torusGeometry = new THREE.TorusGeometry(1, 0.4, 16, 100);  // トーラス (高さ調整不可だが幅を2に調整)
+    // マテリアル設定：すべて白
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false });
 
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-
-    // 立方体、球体、円柱、円錐、トーラスの位置設定
-    const cube = new THREE.Mesh(cubeGeometry, material);
+    // オブジェクト作成
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), material);
     cube.position.set(-3, 0, -5);
     scene.add(cube);
 
-    const sphere = new THREE.Mesh(sphereGeometry, material);
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), material);
     sphere.position.set(3, 0, -5);
     scene.add(sphere);
 
-    const cylinder = new THREE.Mesh(cylinderGeometry, material);
+    const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 2, 32), material);
     cylinder.position.set(0, 3, -5);
     scene.add(cylinder);
 
-    const cone = new THREE.Mesh(coneGeometry, material);
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 32), material);
     cone.position.set(0, -3, -5);
     scene.add(cone);
 
-    const torus = new THREE.Mesh(torusGeometry, material);
+    const torus = new THREE.Mesh(new THREE.TorusGeometry(1, 0.4, 16, 100), material);
     torus.position.set(0, 0, -7);
     scene.add(torus);
 
-    // 照明を追加
-    const light = new THREE.PointLight(0xffffff, 1, 100);
-    light.position.set(10, 10, 10);
-    scene.add(light);
+    // 地面（うっすら見えるグレーのグリッドなどが必要なければこのまま）
+    camera.position.set(0, 1, 5);
 
-    // カメラの初期位置
-    camera.position.set(0, 1, 5);  // カメラの高さを1に設定して、ジャンプが視覚的にわかりやすくなるようにする
-
-    // キーボード入力で移動
     let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
     const moveSpeed = 0.1;
-
-    // ジャンプ関連の変数
     let isJumping = false;
-    let velocityY = 0;  // 上下の速度
-    const gravity = -0.01;  // 重力
-    const jumpStrength = 0.2;  // ジャンプの強さ
+    let velocityY = 0;
+    const gravity = -0.01;
+    const jumpStrength = 0.2;
 
-    // 衝突判定のための関数
     function checkCollision(newPosition) {
       const objects = [cube, sphere, cylinder, cone, torus];
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i];
         const dist = newPosition.distanceTo(object.position);
-        // 衝突判定（簡単な距離を使った判定）
-        if (dist < 2) {
-          return object;  // 衝突したオブジェクトを返す
-        }
+        if (dist < 2) return object;
       }
-      return null;  // 衝突しない
+      return null;
     }
 
-    // 移動のためのイベントリスナー
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'a') moveLeft = true; // A → 視点の左方向に移動
-      if (event.key === 'd') moveRight = true; // D → 視点の右方向に移動
-      if (event.key === 'w') moveForward = true; // W → 視点の前方向に移動
-      if (event.key === 's') moveBackward = true; // S → 視点の後ろ方向に移動
-
-      if (event.key === ' ' && !isJumping) {  // スペースキーでジャンプ
+      if (event.key === 'a') moveLeft = true;
+      if (event.key === 'd') moveRight = true;
+      if (event.key === 'w') moveForward = true;
+      if (event.key === 's') moveBackward = true;
+      if (event.key === ' ' && !isJumping) {
         isJumping = true;
         velocityY = jumpStrength;
       }
@@ -101,64 +82,50 @@
       if (event.key === 's') moveBackward = false;
     });
 
-    // ゲームループ
     function animate() {
       requestAnimationFrame(animate);
 
-      // 視点の方向に基づいた移動
-      const direction = new THREE.Vector3(); // カメラの移動方向を保存するベクトル
-
-      // カメラの向きに基づいて前後左右の移動を決定
-      camera.getWorldDirection(direction); // カメラが向いている方向を取得
-      let newPosition = camera.position.clone(); // 新しい位置を保存する
-
-      if (moveForward) {
-        newPosition.add(direction.multiplyScalar(moveSpeed)); // 視点前方向に進む
-      }
-      if (moveBackward) {
-        newPosition.add(direction.multiplyScalar(-moveSpeed)); // 視点後ろ方向に進む
-      }
-
-      // 左右の移動
-      const right = new THREE.Vector3();
+      const direction = new THREE.Vector3();
       camera.getWorldDirection(direction);
-      right.crossVectors(direction, camera.up); // 右方向を計算
-      if (moveLeft) {
-        newPosition.add(right.multiplyScalar(-moveSpeed)); // 視点左方向に移動
-      }
-      if (moveRight) {
-        newPosition.add(right.multiplyScalar(moveSpeed)); // 視点右方向に移動
-      }
+      let newPosition = camera.position.clone();
 
-      // 衝突判定
+      if (moveForward) newPosition.add(direction.clone().multiplyScalar(moveSpeed));
+      if (moveBackward) newPosition.add(direction.clone().multiplyScalar(-moveSpeed));
+
+      const right = new THREE.Vector3().crossVectors(direction, camera.up);
+      if (moveLeft) newPosition.add(right.clone().multiplyScalar(-moveSpeed));
+      if (moveRight) newPosition.add(right.clone().multiplyScalar(moveSpeed));
+
       const collidedObject = checkCollision(newPosition);
       if (!collidedObject) {
-        camera.position.copy(newPosition);  // 衝突していなければ移動
+        camera.position.x = newPosition.x;
+        camera.position.z = newPosition.z;
       } else {
-        // 衝突した場合、カメラの位置を図形の上に修正
         if (collidedObject.position.y < camera.position.y) {
-          // 図形の上に立つようにカメラの位置を修正
-          camera.position.y = collidedObject.position.y + 1.1; // 図形の上に立つ位置に調整
+          camera.position.y = collidedObject.position.y + 1.1;
         }
       }
 
-      // ジャンプ処理
       if (isJumping) {
-        camera.position.y += velocityY; // 上下に移動
-        velocityY += gravity; // 重力を加算
-
-        if (camera.position.y <= 1) {  // 地面に戻る処理
-          camera.position.y = 1;  // 地面に接する位置
-          isJumping = false;  // ジャンプ終了
-          velocityY = 0;  // 上下の速度リセット
+        camera.position.y += velocityY;
+        velocityY += gravity;
+        if (camera.position.y <= 1) {
+          camera.position.y = 1;
+          isJumping = false;
+          velocityY = 0;
         }
       }
 
-      // レンダリング
       renderer.render(scene, camera);
     }
 
     animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   </script>
 </body>
 </html>
