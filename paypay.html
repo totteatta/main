@@ -11,6 +11,7 @@
         .total-value { font-size: 32px; font-weight: bold; color: #333; margin: 10px 0; }
         .profit-box { background: #fff0f0; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
         .profit-value { font-size: 24px; font-weight: bold; color: #ff0033; }
+        .percent-value { font-size: 16px; font-weight: bold; color: #ff0033; margin-top: 5px; }
         .btn { background: #ff0033; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 15px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
         .btn:active { background: #cc0029; transform: scale(0.98); }
         .info { font-size: 10px; color: #aaa; margin-top: 15px; }
@@ -22,8 +23,9 @@
         <div id="total" class="total-value">計算中...</div>
         
         <div class="profit-box">
-            <div style="font-size: 11px; color:#ff0033; font-weight: bold;">プラス額</div>
+            <div style="font-size: 11px; color:#ff0033; font-weight: bold;">運用損益</div>
             <div id="profit" class="profit-value">--- pt</div>
+            <div id="percent" class="percent-value">--- %</div>
         </div>
 
         <button class="btn" onclick="updatePrice()">最新の状態に更新</button>
@@ -40,25 +42,27 @@
             btn.innerText = "データ取得中...";
             
             try {
-                // 金価格連動データの取得
                 const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');
                 const data = await response.json();
                 const price = parseFloat(data.price);
                 
-                // 【あなたの最新データに基づく計算式】
-                // 係数: 43113 / 2929.5 ≒ 14.717
-                const factor = 8.31311592386; 
-                const ganpon = 34878; // 43113 - 8235
+                // 【設定数値】
+                const factor = 8.31311592386;
+                const ganpon = 34878;
 
                 const total = Math.round(price * factor);
                 const profit = total - ganpon;
+                
+                // 増えた割合の計算
+                const percent = ((profit / ganpon) * 100).toFixed(2);
 
                 document.getElementById('total').innerText = total.toLocaleString() + " pt";
                 document.getElementById('profit').innerText = (profit >= 0 ? "+" : "") + profit.toLocaleString() + " pt";
+                document.getElementById('percent').innerText = (profit >= 0 ? "▲ " : "▼ ") + percent + " %";
                 document.getElementById('market-price').innerText = price.toFixed(2);
                 document.getElementById('last-update').innerText = new Date().toLocaleTimeString();
             } catch (e) {
-                alert("取得に失敗しました。少し待ってから再試行してください。");
+                alert("取得失敗。少し待ってね。");
             } finally {
                 btn.innerText = "最新の状態に更新";
             }
