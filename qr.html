@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Generator - totteatta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #202020;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 20px; }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        /* QRコードを表示するエリア */
+        #qrcode {
+            background-color: white; /* QRコードは見やすいように白背景 */
+            padding: 20px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #qrcode img {
+            display: block;
+        }
+
+        .back-btn {
+            margin-top: 30px;
+            display: inline-block;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .back-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <h1>QR Generator</h1>
+        
+        <input type="text" id="textInput" placeholder="URLや文字を入力..." autocomplete="off">
+        
+        <div id="qrcode"></div>
+
+        <br>
+        <a href="index.html" class="back-btn">← Back to Portal</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script>
+        const textInput = document.getElementById('textInput');
+        const qrcodeContainer = document.getElementById('qrcode');
+        const container = document.getElementById('mainContainer');
+
+        // QRコードの初期設定
+        const qrcode = new QRCode(qrcodeContainer, {
+            text: "https://totteatta.github.io/main/",
+            width: 200,
+            height: 200,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+
+        // 入力に合わせてQRを更新
+        textInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (value.trim() !== "") {
+                qrcode.clear();
+                qrcode.makeCode(value);
+            }
+        });
+
+        // ふわっと表示
+        window.onload = () => {
+            container.classList.add('visible');
+        };
+    </script>
+</body>
+</html>
