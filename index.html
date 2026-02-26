@@ -60,7 +60,7 @@
             font-weight: bold;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            opacity: 0;
+            opacity: 0; /* 最初は透明 */
             transform: translateY(20px);
             transition: all 0.2s ease-in-out;
             font-size: 14px;
@@ -68,11 +68,13 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             border: none;
+            display: block; /* 確実に見えるように */
         }
 
+        /* クラスがついたら表示 */
         .visible {
-            opacity: 1;
-            transform: translateY(0);
+            opacity: 1 !important;
+            transform: translateY(0) !important;
         }
 
         @media (hover: hover) {
@@ -91,7 +93,6 @@
             .wrapper { grid-template-columns: 1fr; }
         }
 
-        /* 動的ボタンの追加スペース用 */
         #dynamic-files {
             display: flex;
             flex-direction: column;
@@ -104,7 +105,7 @@
     <h1 id="title">totteatta</h1>
 
     <div class="wrapper">
-        <div class="column">
+        <div class="column" id="links-column">
             <div class="column-title">LINKS</div>
             <a href="https://scratch.mit.edu/users/oira-edu/" class="file-item external">Scratch</a>
             <a href="https://www.xbox.com/ja-JP/play/user/oiraedu" class="file-item external">Xbox</a>
@@ -122,8 +123,9 @@
 
         <div class="column" id="github-column">
             <div class="column-title">GITHUB</div>
-            <a href="https://github.com/totteatta" class="file-item github-static">Github</a>
-            <div id="dynamic-files"></div> </div>
+            <a href="https://github.com/totteatta" id="fixed-github" class="file-item">Github</a>
+            <div id="dynamic-files"></div>
+        </div>
     </div>
 
     <script>
@@ -132,26 +134,23 @@
             const repo = "main";
             const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
-            // 一度中身を空にして重複を防止
-            const dynamicFilesContainer = document.getElementById('dynamic-files');
-            dynamicFilesContainer.innerHTML = "";
-
-            // タイトル表示
+            // 1. タイトルと固定ボタンを即座に表示対象にする
             setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 50);
+            setTimeout(() => { document.getElementById('fixed-github').classList.add('visible'); }, 100);
 
-            // 左側LINKSを順に表示
+            // 2. 左側のLINKSを表示
             const externals = document.querySelectorAll('.external');
             externals.forEach((link, i) => {
-                setTimeout(() => { link.classList.add('visible'); }, 100 + (i * 30));
+                setTimeout(() => { link.classList.add('visible'); }, 150 + (i * 30));
             });
 
             try {
                 const response = await fetch(url);
                 const files = await response.json();
-                const githubStatic = document.querySelector('.github-static');
-
-                // Githubボタンを表示
-                setTimeout(() => { githubStatic.classList.add('visible'); }, 150);
+                const dynamicFilesContainer = document.getElementById('dynamic-files');
+                
+                // 重複防止：中身をリセット
+                dynamicFilesContainer.innerHTML = "";
 
                 // HTMLファイルを取得
                 const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
@@ -163,16 +162,17 @@
                     a.innerText = file.name.replace('.html', '');
                     dynamicFilesContainer.appendChild(a);
 
-                    // 自動取得ボタンを順に表示
+                    // 3. 自動取得ファイルを順に表示
                     setTimeout(() => {
                         a.classList.add('visible');
-                    }, 200 + (index * 50)); 
+                    }, 250 + (index * 50)); 
                 });
             } catch (e) {
-                console.error("Load Error");
+                console.error("Load Error:", e);
             }
         }
 
+        // 実行
         loadFiles();
     </script>
 </body>
