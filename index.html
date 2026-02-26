@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>totteatta</title>
+    
     <link rel="icon" href="icon.jpg" type="image/jpeg">
     <link rel="apple-touch-icon" href="icon.jpg">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,7 +26,7 @@
             margin-bottom: 30px;
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.2s ease-in-out; /* 0.2sに変更 */
+            transition: all 0.2s ease-in-out;
         }
 
         .wrapper {
@@ -48,7 +50,7 @@
             margin-bottom: 5px;
             letter-spacing: 2px;
         }
-        
+
         .file-item {
             background-color: #333;
             color: white;
@@ -60,13 +62,12 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transform: translateY(20px);
-            /* 全体の動きを0.2sに統一 */
             transition: all 0.2s ease-in-out;
             font-size: 14px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            border: none; /* 枠線を完全に削除 */
+            border: none;
         }
 
         .visible {
@@ -89,16 +90,21 @@
         @media (max-width: 500px) {
             .wrapper { grid-template-columns: 1fr; }
         }
+
+        /* 動的ボタンの追加スペース用 */
+        #dynamic-files {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
     </style>
-    
-    
 </head>
 <body>
 
     <h1 id="title">totteatta</h1>
 
     <div class="wrapper">
-        <div class="column" id="links-column">
+        <div class="column">
             <div class="column-title">LINKS</div>
             <a href="https://scratch.mit.edu/users/oira-edu/" class="file-item external">Scratch</a>
             <a href="https://www.xbox.com/ja-JP/play/user/oiraedu" class="file-item external">Xbox</a>
@@ -117,53 +123,57 @@
         <div class="column" id="github-column">
             <div class="column-title">GITHUB</div>
             <a href="https://github.com/totteatta" class="file-item github-static">Github</a>
-        </div>
+            <div id="dynamic-files"></div> </div>
     </div>
 
     <script>
         async function loadFiles() {
-    const user = "totteatta";
-    const repo = "main";
-    const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
+            const user = "totteatta";
+            const repo = "main";
+            const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
-    // 【修正点1】リロード時に動的エリアだけを空にする
-    const dynamicFilesContainer = document.getElementById('dynamic-files');
-    dynamicFilesContainer.innerHTML = "";
+            // 一度中身を空にして重複を防止
+            const dynamicFilesContainer = document.getElementById('dynamic-files');
+            dynamicFilesContainer.innerHTML = "";
 
-    // ...（中略：タイトルと左側の表示処理）...
+            // タイトル表示
+            setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 50);
 
-    try {
-        const response = await fetch(url);
-        const files = await response.json();
-        const githubStatic = document.querySelector('.github-static');
+            // 左側LINKSを順に表示
+            const externals = document.querySelectorAll('.external');
+            externals.forEach((link, i) => {
+                setTimeout(() => { link.classList.add('visible'); }, 100 + (i * 30));
+            });
 
-        setTimeout(() => { githubStatic.classList.add('visible'); }, 200);
+            try {
+                const response = await fetch(url);
+                const files = await response.json();
+                const githubStatic = document.querySelector('.github-static');
 
-        const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
-        
-        htmlFiles.forEach((file, index) => {
-            const a = document.createElement('a');
-            a.href = `https://totteatta.github.io/main/${file.name}`;
-            a.className = 'file-item';
-            // 【修正点2】デザイン調整（ボタン間の余白）
-            a.style.marginTop = "12px"; 
-            a.innerText = file.name.replace('.html', '');
-            
-            // 【修正点3】追加先を dynamicFilesContainer に変更
-            dynamicFilesContainer.appendChild(a);
+                // Githubボタンを表示
+                setTimeout(() => { githubStatic.classList.add('visible'); }, 150);
 
-            setTimeout(() => {
-                a.classList.add('visible');
-            }, 300 + (index * 50)); 
-        });
-    } catch (e) {
-        console.error("Load Error");
-    }
-}
+                // HTMLファイルを取得
+                const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
+                
+                htmlFiles.forEach((file, index) => {
+                    const a = document.createElement('a');
+                    a.href = `https://totteatta.github.io/main/${file.name}`;
+                    a.className = 'file-item';
+                    a.innerText = file.name.replace('.html', '');
+                    dynamicFilesContainer.appendChild(a);
+
+                    // 自動取得ボタンを順に表示
+                    setTimeout(() => {
+                        a.classList.add('visible');
+                    }, 200 + (index * 50)); 
+                });
+            } catch (e) {
+                console.error("Load Error");
+            }
+        }
 
         loadFiles();
     </script>
 </body>
 </html>
-
-
