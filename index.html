@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>totteatta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #202020;
+            color: white;
+            margin: 0;
+            padding: 40px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* 左右に分けるコンテナ */
+        .wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 左右均等 */
+            gap: 20px;
+            width: 100%;
+            max-width: 700px; /* 2列にするため少し広げました */
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .column-title {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        .file-item {
+            background-color: #333; /* 全ボタン共通 #333 */
+            color: white;
+            padding: 16px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease-in-out;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (hover: hover) {
+            .file-item:hover {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+                background-color: #3d3d3d;
+            }
+        }
+
+        .file-item:active {
+            transform: scale(0.98);
+        }
+
+        /* スマホ等で画面が狭い場合は1列にする */
+        @media (max-width: 500px) {
+            .wrapper { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="title">totteatta</h1>
+
+    <div class="wrapper">
+        <div class="column">
+            <div class="column-title">LINKS</div>
+            <a href="https://scratch.mit.edu/users/oira-edu/" class="file-item external">Scratch</a>
+            <a href="https://www.xbox.com/ja-JP/play/user/oiraedu" class="file-item external">Xbox</a>
+            <a href="https://www.youtube.com/@tttttoooyr" class="file-item external">YouTube</a>
+            <a href="https://www.instagram.com/yyuuuuttta/" class="file-item external">Instagram</a>
+            <a href="https://x.com/accounts1218" class="file-item external">X</a>
+            <a href="http://googleusercontent.com/spotify.com/3" class="file-item external">Spotify</a>
+            <a href="https://www.strava.com/athletes/195434973" class="file-item external">Strava</a>
+            <a href="https://ja.wikipedia.org/wiki/%E5%88%A9%E7%94%A8%E8%80%85:%E3%81%88%E3%81%BA%E3%81%8A%E3%82%93%E3%81%98%E3%82%87%E3%81%84" class="file-item external">Wikipedia</a>
+            <a href="https://www.duolingo.com/profile/oodde" class="file-item external">Duolingo</a>
+            <a href="https://codepen.io/codepen-oira-edu" class="file-item external">CodePen</a>
+            <a href="https://www.twitch.tv/totteatta" class="file-item external">Twitch</a>
+            <a href="https://www.roblox.com/ja/users/5447700511/profile" class="file-item external">Roblox</a>
+        </div>
+
+        <div class="column" id="github-column">
+            <div class="column-title">GITHUB</div>
+            <a href="https://github.com/totteatta" class="file-item external" style="border: 1px solid #555;">My GitHub</a>
+            </div>
+    </div>
+
+    <script>
+        async function loadFiles() {
+            const user = "totteatta";
+            const repo = "main";
+            const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
+
+            // 1. タイトル表示
+            setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 100);
+
+            // 2. 左側の固定リンクを順次表示
+            const externals = document.querySelectorAll('.external');
+            externals.forEach((link, i) => {
+                setTimeout(() => { link.classList.add('visible'); }, 200 + (i * 40));
+            });
+
+            try {
+                const response = await fetch(url);
+                const files = await response.json();
+                const githubColumn = document.getElementById('github-column');
+
+                // HTMLファイルを取得
+                const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
+                
+                htmlFiles.forEach((file, index) => {
+                    const a = document.createElement('a');
+                    a.href = `https://totteatta.github.io/main/${file.name}`;
+                    a.className = 'file-item';
+                    a.innerText = file.name.replace('.html', '');
+                    githubColumn.appendChild(a);
+
+                    // 3. 右側の自動取得リンクを順次表示
+                    setTimeout(() => {
+                        a.classList.add('visible');
+                    }, 400 + (index * 60)); 
+                });
+            } catch (e) {
+                console.error("Load Error");
+            }
+        }
+
+        loadFiles();
+    </script>
+</body>
+</html>
