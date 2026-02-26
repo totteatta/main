@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>totteatta</title>
+    <link rel="icon" href="icon.jpg" type="image/jpeg">
+    <link rel="apple-touch-icon" href="icon.jpg">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,10 +48,6 @@
             margin-bottom: 5px;
             letter-spacing: 2px;
         }
-
-        <link rel="icon" href="icon.jpg" type="image/jpeg">
-
-        <link rel="apple-touch-icon" href="icon.jpg">
         
         .file-item {
             background-color: #333;
@@ -92,6 +90,8 @@
             .wrapper { grid-template-columns: 1fr; }
         }
     </style>
+    
+    
 </head>
 <body>
 
@@ -116,56 +116,54 @@
 
         <div class="column" id="github-column">
             <div class="column-title">GITHUB</div>
-            <a href="https://github.com/totteatta" class="file-item github-static">My GitHub</a>
+            <a href="https://github.com/totteatta" class="file-item github-static">Github</a>
         </div>
     </div>
 
     <script>
         async function loadFiles() {
-            const user = "totteatta";
-            const repo = "main";
-            const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
+    const user = "totteatta";
+    const repo = "main";
+    const url = `https://api.github.com/repos/${user}/${repo}/contents/`;
 
-            // 1. タイトル表示
-            setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 50);
+    // 【修正点1】リロード時に動的エリアだけを空にする
+    const dynamicFilesContainer = document.getElementById('dynamic-files');
+    dynamicFilesContainer.innerHTML = "";
 
-            // 2. 左側のリンクを表示
-            const externals = document.querySelectorAll('.external');
-            externals.forEach((link, i) => {
-                setTimeout(() => { link.classList.add('visible'); }, 150 + (i * 30));
-            });
+    // ...（中略：タイトルと左側の表示処理）...
 
-            try {
-                const response = await fetch(url);
-                const files = await response.json();
-                const githubColumn = document.getElementById('github-column');
-                const githubStatic = document.querySelector('.github-static');
+    try {
+        const response = await fetch(url);
+        const files = await response.json();
+        const githubStatic = document.querySelector('.github-static');
 
-                // 3. GitHubスタティックボタンの表示（左側がある程度出たタイミングで）
-                setTimeout(() => { githubStatic.classList.add('visible'); }, 200);
+        setTimeout(() => { githubStatic.classList.add('visible'); }, 200);
 
-                // HTMLファイルを取得
-                const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
-                
-                htmlFiles.forEach((file, index) => {
-                    const a = document.createElement('a');
-                    a.href = `https://totteatta.github.io/main/${file.name}`;
-                    a.className = 'file-item';
-                    a.innerText = file.name.replace('.html', '');
-                    githubColumn.appendChild(a);
+        const htmlFiles = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html');
+        
+        htmlFiles.forEach((file, index) => {
+            const a = document.createElement('a');
+            a.href = `https://totteatta.github.io/main/${file.name}`;
+            a.className = 'file-item';
+            // 【修正点2】デザイン調整（ボタン間の余白）
+            a.style.marginTop = "12px"; 
+            a.innerText = file.name.replace('.html', '');
+            
+            // 【修正点3】追加先を dynamicFilesContainer に変更
+            dynamicFilesContainer.appendChild(a);
 
-                    // 4. 右側の取得ファイルを順次表示
-                    setTimeout(() => {
-                        a.classList.add('visible');
-                    }, 300 + (index * 50)); 
-                });
-            } catch (e) {
-                console.error("Load Error");
-            }
-        }
+            setTimeout(() => {
+                a.classList.add('visible');
+            }, 300 + (index * 50)); 
+        });
+    } catch (e) {
+        console.error("Load Error");
+    }
+}
 
         loadFiles();
     </script>
 </body>
 </html>
+
 
