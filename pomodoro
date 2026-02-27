@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Timer</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .timer-card {
+            background-color: #111111;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            text-align: center;
+            width: 300px;
+        }
+
+        .label {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        #timer-display {
+            font-family: "SF Mono", "Fira Code", monospace !important;
+            font-size: 64px;
+            font-weight: 200;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        /* プログレスバー */
+        .progress-container {
+            width: 100%;
+            height: 2px;
+            background-color: #222;
+            margin-bottom: 30px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 100%;
+            background-color: #ff0033; /* PayPayレッド */
+            transition: width 1s linear;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit !important;
+        }
+
+        .btn-start {
+            background-color: #ff0033;
+            color: #fff;
+        }
+
+        .btn-reset {
+            background-color: #222;
+            color: #666;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .mode-btn {
+            font-size: 11px;
+            color: #444;
+            cursor: pointer;
+            transition: 0.3s;
+            border-bottom: 1px solid transparent;
+            padding-bottom: 2px;
+        }
+
+        .mode-btn.active {
+            color: #fff;
+            border-bottom: 1px solid #ff0033;
+        }
+    </style>
+</head>
+<body>
+
+<div class="timer-card">
+    <div class="label" id="status-label">Focus Session</div>
+    <div id="timer-display">25:00</div>
+    
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-start" id="startBtn" onclick="toggleTimer()">START</button>
+        <button class="btn-reset" onclick="resetTimer()">RESET</button>
+    </div>
+
+    <div class="mode-switch">
+        <div class="mode-btn active" id="mode-focus" onclick="setMode('focus')">FOCUS</div>
+        <div class="mode-btn" id="mode-break" onclick="setMode('break')">BREAK</div>
+    </div>
+</div>
+
+<script>
+    let timeLeft = 25 * 60;
+    let totalTime = 25 * 60;
+    let timerId = null;
+    let isRunning = false;
+    let currentMode = 'focus';
+
+    const display = document.getElementById('timer-display');
+    const startBtn = document.getElementById('startBtn');
+    const progressBar = document.getElementById('progress-bar');
+    const statusLabel = document.getElementById('status-label');
+
+    function updateDisplay() {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        // バーの長さを更新
+        const percentage = (timeLeft / totalTime) * 100;
+        progressBar.style.width = `${percentage}%`;
+    }
+
+    function toggleTimer() {
+        if (isRunning) {
+            clearInterval(timerId);
+            startBtn.textContent = 'START';
+            startBtn.style.backgroundColor = '#ff0033';
+        } else {
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    alert(currentMode === 'focus' ? 'Session Complete! Take a break.' : 'Break over! Back to work.');
+                    resetTimer();
+                }
+            }, 1000);
+            startBtn.textContent = 'PAUSE';
+            startBtn.style.backgroundColor = '#fff';
+            startBtn.style.color = '#000';
+        }
+        isRunning = !isRunning;
+    }
+
+    function resetTimer() {
+        clearInterval(timerId);
+        isRunning = false;
+        setMode(currentMode);
+        startBtn.textContent = 'START';
+        startBtn.style.backgroundColor = '#ff0033';
+        startBtn.style.color = '#fff';
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === 'focus') {
+            timeLeft = 25 * 60;
+            statusLabel.textContent = 'Focus Session';
+            document.getElementById('mode-focus').classList.add('active');
+            document.getElementById('mode-break').classList.remove('active');
+        } else {
+            timeLeft = 5 * 60;
+            statusLabel.textContent = 'Short Break';
+            document.getElementById('mode-focus').classList.remove('active');
+            document.getElementById('mode-break').classList.add('active');
+        }
+        totalTime = timeLeft;
+        updateDisplay();
+    }
+
+    updateDisplay();
+</script>
+
+</body>
+</html>
