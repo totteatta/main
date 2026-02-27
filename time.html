@@ -55,14 +55,11 @@
         .timezone .clock {
             font-size: 24px;
             font-weight: bold;
-            color: #00b4d8; /* 明るい青色 */
+            color: #ffffff; /* 明るい青色 */
             margin-top: 15px;
             transition: color 0.3s ease, transform 0.3s ease;
         }
-        .clock.changed {
-            color: #ff5c8d; /* 時間変更時に赤色 */
-            transform: scale(1.1);
-        }
+        
     </style>
 </head>
 <body>
@@ -149,7 +146,8 @@
         }
 
         createTimeZoneClocks();
-        setInterval(updateClocks, 50); // 更新頻度を50msに設定
+        setInterval(updateClocks, 100); // 更新頻度を50msに設定
     </script>
 </body>
 </html>
+
