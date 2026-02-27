@@ -10,8 +10,9 @@
 
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #202020;
+            /* 教科書体回避の設定のみ維持 */
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif !important;
+            background-color: #202020; /* 元の色に戻しました */
             color: white;
             margin: 0;
             padding: 40px 10px;
@@ -29,7 +30,6 @@
             transition: all 0.2s ease-in-out;
         }
 
-        /* メインコンテンツの幅制限 */
         .container {
             width: 100%;
             max-width: 700px;
@@ -49,7 +49,7 @@
         .column-title { font-size: 12px; color: #888; text-align: center; margin-bottom: 5px; letter-spacing: 2px; }
 
         .file-item {
-            background-color: #333;
+            background-color: #333; /* 元の色に戻しました */
             color: white;
             padding: 16px 10px;
             border-radius: 8px;
@@ -59,7 +59,8 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.2s ease-in-out;
+            /* 動きを非常に滑らかにする設定 */
+            transition: transform 0.2s ease-out, background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
             font-size: 14px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -67,11 +68,16 @@
             border: none;
         }
 
+        /* ホバー：拡大を1.03倍に抑え、色は元のまま明るくするだけに修正 */
+        .file-item:hover {
+            transform: scale(1.03) !important; /* 控えめな拡大 */
+            background-color: #3d3d3d; /* 元のホバー色に戻しました */
+        }
+
         .visible { opacity: 1 !important; transform: translateY(0) !important; }
 
-        /* ニュースセクション（中央・一番下） */
         #news-section {
-            background-color: #2a2a2a;
+            background-color: #2a2a2a; /* 元の色に戻しました */
             text-align: left;
             padding: 20px;
             border-radius: 8px;
@@ -80,10 +86,6 @@
             transition: all 0.2s ease-in-out;
             width: 100%;
             box-sizing: border-box;
-        }
-
-        @media (hover: hover) {
-            .file-item:hover { transform: scale(1.05); background-color: #3d3d3d; }
         }
 
         @media (max-width: 500px) { .wrapper { grid-template-columns: 1fr; } }
@@ -121,20 +123,15 @@
 
         <div id="news-section">
             <div style="font-size: 10px; color: #888; margin-bottom: 12px; letter-spacing: 1px; text-align: center;">WORLD NEWS</div>
-            <div id="news-list" style="font-size: 14px; line-height: 1.6;">読み込み中...</div>
+            <div id="news-list" style="font-size: 14px; line-height: 1.6;"></div>
         </div>
     </div>
 
     <script>
-        // ページ読み込み時に即実行
         window.onload = () => {
-            // タイトル表示
             setTimeout(() => { document.getElementById('title').classList.add('visible'); }, 50);
-            
-            // 固定ボタン表示
             setTimeout(() => { document.getElementById('fixed-github').classList.add('visible'); }, 100);
             
-            // 左側ボタン表示
             document.querySelectorAll('.external').forEach((el, i) => {
                 setTimeout(() => { el.classList.add('visible'); }, 150 + (i * 30));
             });
@@ -183,7 +180,6 @@
                         a.innerText = "・ " + item.title;
                         list.appendChild(a);
                     });
-                    // ニュースをふわっと表示
                     setTimeout(() => { section.classList.add('visible'); }, 500);
                 }
             } catch (e) { list.innerText = "ニュース取得失敗"; }
@@ -191,5 +187,3 @@
     </script>
 </body>
 </html>
-
-
