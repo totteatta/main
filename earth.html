@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Great Circle Map - Standard</title>
+    <title>Multi-World Great Circle</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
     
     <style>
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif !important;
+            font-family: "Helvetica Neue", Arial, sans-serif !important;
             background-color: #f0f0f0;
-            color: #333;
             margin: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
-        #map { flex: 1; background: #aad3df; } /* 海の色に近い背景 */
+        #map { flex: 1; background: #aad3df; }
         .controls {
             padding: 12px 20px;
             background: #ffffff;
@@ -28,27 +27,24 @@
             font-size: 13px;
             font-weight: bold;
             border-bottom: 2px solid #ddd;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             z-index: 1000;
         }
-        .line-red { width: 20px; height: 3px; background: #ff0033; border-radius: 2px; }
-        .line-blue { width: 20px; height: 3px; background: #0055ff; border-radius: 2px; }
+        .line-red { width: 20px; height: 3px; background: #ff0033; }
+        .line-blue { width: 20px; height: 3px; background: #0055ff; }
         button {
             background: #ff0033; color: white; border: none; padding: 8px 16px;
-            border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold;
-            transition: 0.2s;
+            border-radius: 6px; cursor: pointer; font-size: 11px;
         }
-        button:hover { background: #cc0029; transform: scale(1.05); }
-        #distance-info { margin-left: auto; color: #555; font-family: monospace; }
+        #distance-info { margin-left: auto; color: #555; }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <div style="display:flex; align-items:center; gap:8px;"><div class="line-red"></div> メルカトル直線</div>
-        <div style="display:flex; align-items:center; gap:8px;"><div class="line-blue"></div> 球体最短距離</div>
+        <div style="display:flex; align-items:center; gap:8px;"><div class="line-red"></div> 直線</div>
+        <div style="display:flex; align-items:center; gap:8px;"><div class="line-blue"></div> 最短距離</div>
         <button onclick="clearMap()">RESET</button>
-        <div id="distance-info">CLICK 2 POINTS</div>
+        <div id="distance-info">どの画面の大陸でもクリックOK</div>
     </div>
 
     <div id="map"></div>
@@ -57,17 +53,13 @@
         const map = L.map('map', {
             center: [30, 0],
             zoom: 2,
-            minZoom: 2,
-            maxBounds: [[-85, -180], [85, 180]], 
-            maxBoundsViscosity: 1.0,
-            noWrap: true
+            minZoom: 1,
+            worldCopyJump: false // 独自計算するためオフ
         });
 
-        // 標準的な地図タイル (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
-            noWrap: true,
-            bounds: [[-85, -180], [85, 180]]
+            attribution: '&copy; OpenStreetMap',
+            noWrap: false // ループを許可
         }).addTo(map);
 
         let markers = [];
@@ -76,9 +68,10 @@
         map.on('click', function(e) {
             if (markers.length >= 2) clearMap();
 
-            const wrappedLatLng = e.latlng.wrap();
+            // ここが重要：クリックされた「生」の経度を取得（-180〜180に矯正しない）
+            const latlng = e.latlng; 
 
-            const marker = L.circleMarker(wrappedLatLng, {
+            const marker = L.circleMarker(latlng, {
                 radius: 7, fillColor: "#fff", color: "#ff0033", weight: 3, fillOpacity: 1
             }).addTo(map);
             markers.push(marker);
@@ -87,22 +80,31 @@
         });
 
         function drawPaths() {
-            const start = markers[0].getLatLng();
-            const end = markers[1].getLatLng();
+            const m1 = markers[0].getLatLng();
+            const m2 = markers[1].getLatLng();
 
-            // 1. 直線 (Rhumb Line) - 赤
-            const rhumbLine = L.polyline([start, end], {
+            // 1. 直線 (メルカトル上の見たままの線)
+            const rhumbLine = L.polyline([m1, m2], {
                 color: '#ff0033', weight: 3, dashArray: '8, 8'
             }).addTo(map);
             layers.push(rhumbLine);
 
-            // 2. 最短距離 (Great Circle) - 青（標準地図で見やすい色に変更）
-            const startPt = turf.point([start.lng, start.lat]);
-            const endPt = turf.point([end.lng, end.lat]);
+            // 2. 最短距離 (大圏航路)
+            // 座標を標準の-180〜180に変換して最短経路を計算
+            const startPt = turf.point([m1.lng, m1.lat]);
+            const endPt = turf.point([m2.lng, m2.lat]);
             
+            // 日付変更線をまたぐ際に「近い方」を自動判別して経路を作る
             const arc = turf.greatCircle(startPt, endPt, { npoints: 100 });
             
+            // 計算された最短距離の経度を、クリックされた「画面上の位置」にオフセット調整
+            const offset = Math.round(m1.lng / 360) * 360;
+            
             const greatCircle = L.geoJSON(arc, {
+                coordsToLatLng: function(coords) {
+                    // 1枚目の世界ではなく、クリックした世界の位置に線をずらす
+                    return L.latLng(coords[1], coords[0] + offset);
+                },
                 style: { color: '#0055ff', weight: 4, opacity: 0.8 }
             }).addTo(map);
             layers.push(greatCircle);
@@ -116,7 +118,7 @@
             layers.forEach(l => map.removeLayer(l));
             markers = [];
             layers = [];
-            document.getElementById('distance-info').innerText = "CLICK 2 POINTS";
+            document.getElementById('distance-info').innerText = "どの画面の大陸でもクリックOK";
         }
     </script>
 </body>
